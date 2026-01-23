@@ -3,8 +3,10 @@
 
 config ARM_CORE_CM4
 	bool
-	default y if SOC_SERIES_AMEBAG2
+	# Temporary workaround for CI. Revert to "default y if SOC_SERIES_AMEBAG2" after G2 support is upstreamed.
+	default n
 
 config ARM_CORE_CM4_KM4TZ
 	bool
-	default y if SOC_SERIES_AMEBAG2
+	# Temporary workaround for CI. Revert to "default y if SOC_SERIES_AMEBAG2" after G2 support is upstreamed.
+	default n
