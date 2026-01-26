@@ -3,3 +3,4 @@
 
 zephyr_include_directories_ifdef(CONFIG_SOC_SERIES_RTL87X2G osif/inc/rtl87x2g)
 zephyr_include_directories_ifdef(CONFIG_SOC_SERIES_RTL8752H osif/inc/rtl8752h)
+add_subdirectory_ifdef(CONFIG_SOC_SERIES_RTL87X2G osif/src/rtl87x2g)
