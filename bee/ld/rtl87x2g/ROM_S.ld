@@ -2,6 +2,7 @@ SECTIONS
 {
     PROVIDE(flash_nor_set_all_info = 0x0000aa79);
     PROVIDE(swap_buf = 0x0001776f);
+    PROVIDE(HardFault_Handler_Rom = 0x0001bf81);
     PROVIDE(get_occd_addr = 0x0001bf89);
     PROVIDE(get_occd_size = 0x0001bf91);
     PROVIDE(get_extra_occd_addr = 0x0001bf99);

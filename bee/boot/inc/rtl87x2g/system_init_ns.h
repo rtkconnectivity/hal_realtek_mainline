@@ -40,6 +40,13 @@ extern void (*secure_os_func_ptr_init)(void);
 extern void (*secure_platform_func_ptr_init)(void);
 extern bool (*log_buffer_init)(void);
 extern void (*log_gdma_init)(void);
+extern void (*platform_rtc_aon_init)(void);
+extern void (*power_manager_master_init)(void);
+extern void (*power_manager_slave_init)(void);
+extern void (*platform_pm_init)(void);
+extern void (*pmu_power_on_sequence_restart)(void);
+extern void (*pmu_apply_voltage_tune)(void);
+extern void hw_aes_mutex_init(void);
 
 #ifdef __cplusplus
 }
