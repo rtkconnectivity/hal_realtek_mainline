@@ -12,6 +12,7 @@ SECTIONS
     PROVIDE(fill_log_data = 0x00022145);
     PROVIDE(flash_nor_ioctl = 0x00022271);
     PROVIDE(get_sys_tick_clk_type = 0x00022b8d);
+    PROVIDE(hw_aes_mutex_init = 0x0002380d);
     PROVIDE(init_osc_sdm_timer = 0x00023a11);
     PROVIDE(is_aon_clk_32000Hz = 0x00023e79);
     PROVIDE(is_btmac_clk_32000Hz = 0x00023e89);
@@ -23,6 +24,8 @@ SECTIONS
     PROVIDE(log_buffer_lowerstack = 0x000241d9);
     PROVIDE(log_module_bitmap_trace_set = 0x00024515);
     PROVIDE(log_module_trace_init = 0x0002454d);
+    PROVIDE(os_register_pm_excluded_handle_imp = 0x00028215);
+    PROVIDE(os_unregister_pm_excluded_handle_imp = 0x000287dd);
     PROVIDE(read_cpu_counter = 0x0002d351);
     PROVIDE(register_log_dest_cb = 0x0002d395);
     PROVIDE(reverse_bits_in_word = 0x0002d3c9);
@@ -56,6 +59,12 @@ SECTIONS
     PROVIDE(phy_init = 0x0013d7dc);
     PROVIDE(platform_delay_ms = 0x0013d80c);
     PROVIDE(platform_delay_us = 0x0013d810);
+    PROVIDE(platform_pm_init = 0x0013d834);
+    PROVIDE(platform_rtc_aon_init = 0x0013d8ec);
+    PROVIDE(pmu_apply_voltage_tune = 0x0013d938);
+    PROVIDE(pmu_power_on_sequence_restart = 0x0013d96c);
+    PROVIDE(power_manager_master_init = 0x0013da24);
+    PROVIDE(power_manager_slave_init = 0x0013db40);
     PROVIDE(secure_os_func_ptr_init = 0x0013dca4);
     PROVIDE(secure_platform_func_ptr_init = 0x0013dca8);
     PROVIDE(set_active_mode_clk_src = 0x0013dcb0);
@@ -95,6 +104,7 @@ SECTIONS
     PROVIDE(os_queue_out = 0x0013e2f0);
     PROVIDE(os_queue_peek = 0x0013e2f4);
     PROVIDE(os_queue_search = 0x0013e2f8);
+    PROVIDE(os_register_pm_excluded_handle = 0x0013e2fc);
     PROVIDE(os_sched_is_start = 0x0013e300);
     PROVIDE(os_sched_resume = 0x0013e308);
     PROVIDE(os_sched_start = 0x0013e30c);
@@ -135,5 +145,6 @@ SECTIONS
     PROVIDE(os_timer_start = 0x0013e3a8);
     PROVIDE(os_timer_state_get = 0x0013e3ac);
     PROVIDE(os_timer_stop = 0x0013e3b0);
+    PROVIDE(os_unregister_pm_excluded_handle = 0x0013e3c0);
     PROVIDE(os_vector_table_update = 0x0013e3c4);
 }

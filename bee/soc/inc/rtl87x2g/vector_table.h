@@ -49,6 +49,7 @@ extern void *RamVectorTable[];
 
 extern void Default_Handler_rom(void);
 extern void BTMAC_Handler(void);
+extern void HardFault_Handler_Rom(void);
 
 /** End of VECTOR_TABLE_Exported_Types
   * @}

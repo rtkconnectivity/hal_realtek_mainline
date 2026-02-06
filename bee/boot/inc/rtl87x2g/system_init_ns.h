@@ -41,6 +41,18 @@ extern void secure_os_func_ptr_init_rom(void);
 extern void (*secure_platform_func_ptr_init)(void);
 extern bool (*log_buffer_init)(void);
 extern void (*log_gdma_init)(void);
+extern void (*platform_rtc_aon_init)(void);
+extern void (*power_manager_master_init)(void);
+extern void (*power_manager_slave_init)(void);
+extern void (*platform_pm_init)(void);
+extern void (*pmu_power_on_sequence_restart)(void);
+extern void (*pmu_apply_voltage_tune)(void);
+extern void hw_aes_mutex_init(void);
+extern void os_queue_func_init(void);
+extern bool (*os_register_pm_excluded_handle)(void **pp_handle, int type);
+extern bool (*os_unregister_pm_excluded_handle)(void **pp_handle, int type);
+extern bool os_register_pm_excluded_handle_imp(void **handle, int type);
+extern bool os_unregister_pm_excluded_handle_imp(void **handle, int type);
 
 #ifdef __cplusplus
 }
