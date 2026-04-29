@@ -1,7 +1,5 @@
 /*
- * Copyright (c) 2026, Realtek Semiconductor Corporation
- *
- * SPDX-License-Identifier: Apache-2.0
+ * Copyright (c) 2015, Realtek Semiconductor Corporation. All rights reserved.
  */
 
 #ifndef _OS_MSG_H_
@@ -15,7 +13,7 @@ extern "C" {
 #endif
 
 /**
- * \defgroup OS_MSG Message Queue
+ * \defgroup    Message Message Queue
  *
  * \brief   Exchange messages between tasks in a FIFO-like operation.
  * \details The Message Queue function group allows to control, send, receive, or wait for message.
@@ -28,26 +26,24 @@ extern "C" {
  *
  */
 
+
 bool os_msg_queue_create_intern(void **pp_handle, const char *p_name, uint32_t msg_num,
-                                uint32_t msg_size);
+                                uint32_t msg_size,
+                                const char *p_func, uint32_t file_line);
 
-bool os_msg_queue_delete_intern(void *p_handle);
+bool os_msg_queue_delete_intern(void *p_handle, const char *p_func, uint32_t file_line);
 
-bool os_msg_queue_peek_intern(void *p_handle, uint32_t *p_msg_num);
+bool os_msg_queue_peek_intern(void *p_handle, uint32_t *p_msg_num,
+                              const char *p_func, uint32_t file_line);
 
-bool os_msg_send_intern(void *p_handle, void *p_msg, uint32_t wait_ms);
+bool os_msg_send_intern(void *p_handle, void *p_msg, uint32_t wait_ms,
+                        const char *p_func, uint32_t file_line);
 
-bool os_msg_recv_intern(void *p_handle, void *p_msg, uint32_t wait_ms);
+bool os_msg_recv_intern(void *p_handle, void *p_msg, uint32_t wait_ms,
+                        const char *p_func, uint32_t file_line);
 
-bool os_msg_peek_intern(void *p_handle, void *p_msg, uint32_t wait_ms);
-
-/*============================================================================*
- *                              Functions
-*============================================================================*/
-/** @defgroup OS_MSG_Exported_Functions OS Message Exported Functions
-  * \ingroup  OS_MSG
-  * @{
-  */
+bool os_msg_peek_intern(void *p_handle, void *p_msg, uint32_t wait_ms,
+                        const char *p_func, uint32_t file_line);
 
 /**
  * os_msg.h
@@ -55,14 +51,14 @@ bool os_msg_peek_intern(void *p_handle, void *p_msg, uint32_t wait_ms);
  * \brief   Creates a message queue instance. This allocates the storage required by the
  *          new queue and passes back a handle for the queue.
  *
- * \param  pp_handle  Used to pass back a handle by which the message queue
+ * \param[out]  pp_handle  Used to pass back a handle by which the message queue
  *                         can be referenced.
  *
- * \param   p_name     A descriptive name for the message queue.
+ * \param[in]   p_name     A descriptive name for the message queue.
  *
- * \param   msg_num    The maximum number of items that the queue can contain.
+ * \param[in]   msg_num    The maximum number of items that the queue can contain.
  *
- * \param   msg_size   The number of bytes each item in the queue will require. Items
+ * \param[in]   msg_size   The number of bytes each item in the queue will require. Items
  *                         are queued by copy, not by reference, so this is the number of
  *                         bytes that will be copied for each posted item. Each item on the
  *                         queue must be the same size.
@@ -103,6 +99,7 @@ bool os_msg_peek_intern(void *p_handle, void *p_msg, uint32_t wait_ms);
  * }
  * \endcode
  *
+ * \ingroup  Message
  */
 #define os_msg_queue_create(pp_handle, p_name, msg_num, msg_size)    \
     os_msg_queue_create_intern(pp_handle, p_name, msg_num, msg_size, __func__, __LINE__)
@@ -113,7 +110,7 @@ bool os_msg_peek_intern(void *p_handle, void *p_msg, uint32_t wait_ms);
  * \brief   Delete the specified message queue, and free all the memory allocated for
  *          storing of items placed on the queue.
  *
- * \param   p_handle   The handle to the message queue being deleted.
+ * \param[in]   p_handle   The handle to the message queue being deleted.
  *
  * \return           The status of the message queue deletion.
  * \retval true      Message queue was deleted successfully.
@@ -151,6 +148,7 @@ bool os_msg_peek_intern(void *p_handle, void *p_msg, uint32_t wait_ms);
  * }
  * \endcode
  *
+ * \ingroup  Message
  */
 #define os_msg_queue_delete(p_handle) \
     os_msg_queue_delete_intern(p_handle, __func__, __LINE__)
@@ -160,9 +158,9 @@ bool os_msg_peek_intern(void *p_handle, void *p_msg, uint32_t wait_ms);
  *
  * \brief    Peek the number of items sent and resided on the message queue.
  *
- * \param   p_handle   The handle to the message queue being peeked.
+ * \param[in]   p_handle   The handle to the message queue being peeked.
  *
- * \param  p_msg_num  Used to pass back the number of items residing on the message queue.
+ * \param[out]  p_msg_num  Used to pass back the number of items residing on the message queue.
  *
  * \return           The status of the message queue peek.
  * \retval true      Message queue was peeked successfully.
@@ -201,6 +199,7 @@ bool os_msg_peek_intern(void *p_handle, void *p_msg, uint32_t wait_ms);
  * }
  * \endcode
  *
+ * \ingroup  Message
  */
 #define os_msg_queue_peek(p_handle, p_msg_num)  \
     os_msg_queue_peek_intern(p_handle, p_msg_num, __func__, __LINE__)
@@ -211,12 +210,12 @@ bool os_msg_peek_intern(void *p_handle, void *p_msg, uint32_t wait_ms);
  * \brief   Send an item to the back of the specified message queue. The item is
  *          queued by copy, not by reference.
  *
- * \param   p_handle The handle to the message queue on which the item is to be sent.
+ * \param[in]   p_handle The handle to the message queue on which the item is to be sent.
  *
- * \param   p_msg    Pointer to the item that is to be sent on the queue. The referenced
+ * \param[in]   p_msg    Pointer to the item that is to be sent on the queue. The referenced
  *                       item rather than pointer itself will be copied on the queue.
  *
- * \param   wait_ms  The maximum amount of time in milliseconds that the task should
+ * \param[in]   wait_ms  The maximum amount of time in milliseconds that the task should
  *                       block waiting for the item to sent on the queue.
  * \arg \c 0           No blocking and return immediately.
  * \arg \c 0xFFFFFFFF  Block infinitely until the item sent.
@@ -261,6 +260,7 @@ bool os_msg_peek_intern(void *p_handle, void *p_msg, uint32_t wait_ms);
  * }
  * \endcode
  *
+ * \ingroup  Message
  */
 #define os_msg_send(p_handle, p_msg, wait_ms) \
     os_msg_send_intern(p_handle, p_msg, wait_ms, __func__, __LINE__)
@@ -271,12 +271,12 @@ bool os_msg_peek_intern(void *p_handle, void *p_msg, uint32_t wait_ms);
  * \brief   Receive an item from the specified message queue. The item is received by
  *          copy rather than by reference, so a buffer of adequate size must be provided.
  *
- * \param   p_handle The handle to the message queue from which the item is to be received.
+ * \param[in]   p_handle The handle to the message queue from which the item is to be received.
  *
- * \param  p_msg    Pointer to the buffer into which the received item will be copied.
+ * \param[out]  p_msg    Pointer to the buffer into which the received item will be copied.
  *                       item rather than pointer itself will be copied on the queue.
  *
- * \param   wait_ms  The maximum amount of time in milliseconds that the task should
+ * \param[in]   wait_ms  The maximum amount of time in milliseconds that the task should
  *                       block waiting for an item to be received from the queue.
  * \arg \c 0           No blocking and return immediately.
  * \arg \c 0xFFFFFFFF  Block infinitely until the item received.
@@ -340,6 +340,7 @@ bool os_msg_peek_intern(void *p_handle, void *p_msg, uint32_t wait_ms);
  * }
  * \endcode
  *
+ * \ingroup  Message
  */
 #define os_msg_recv(p_handle, p_msg, wait_ms) \
     os_msg_recv_intern(p_handle, p_msg, wait_ms, __func__, __LINE__)
@@ -351,12 +352,12 @@ bool os_msg_peek_intern(void *p_handle, void *p_msg, uint32_t wait_ms);
  *          received by copy rather than by reference, so a buffer of adequate size must
  *          be provided.
  *
- * \param  p_handle The handle to the message queue on which the item is to be peeked.
+ * \param[in]   p_handle The handle to the message queue on which the item is to be peeked.
  *
- * \param  p_msg    Pointer to the buffer into which the received item will be copied.
+ * \param[out]  p_msg    Pointer to the buffer into which the received item will be copied.
  *                       item rather than pointer itself will be copied on the queue.
  *
- * \param   wait_ms  The maximum amount of time in milliseconds that the task should
+ * \param[in]   wait_ms  The maximum amount of time in milliseconds that the task should
  *                       block waiting for an item to be received from the queue.
  * \arg \c 0           No blocking and return immediately.
  * \arg \c 0xFFFFFFFF  Block infinitely until the item received.
@@ -420,17 +421,10 @@ bool os_msg_peek_intern(void *p_handle, void *p_msg, uint32_t wait_ms);
  * }
  * \endcode
  *
+ * \ingroup  Message
  */
 #define os_msg_peek(p_handle, p_msg, wait_ms) \
     os_msg_peek_intern(p_handle, p_msg, wait_ms, __func__, __LINE__)
-
-/** End of group OS_MSG_Exported_Functions
-  * @}
-  */
-
-/** End of OS_MSG
-  * @}
-  */
 
 #ifdef __cplusplus
 }
