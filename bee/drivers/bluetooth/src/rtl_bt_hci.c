@@ -9,19 +9,51 @@
 #include "mem_types.h"
 #include "os_mem.h"
 #include "os_sync.h"
+#if defined(CONFIG_SOC_SERIES_RTL87X2J)
+#include "soc_log.h"
+#define BT_SNOOP_UP(length, snoop)   BT_SNOOP_UP_TRACE(0, length, snoop)
+#define BT_SNOOP_DOWN(length, snoop) BT_SNOOP_DOWN_TRACE(0, length, snoop)
+#else
 #include "trace.h"
+#define BT_SNOOP_UP(length, snoop)   BT_SNOOP_UP_TRACE(length, snoop)
+#define BT_SNOOP_DOWN(length, snoop) BT_SNOOP_DOWN_TRACE(length, snoop)
+#endif
 
 #define F_RTK_BT_HCI_H2C_POOL_DEBUG_LOG 0
 #define F_RTK_BT_HCI_DRIVER_DEBUG_LOG   0
 
-#define HCI_TX_ACL_BUF_OFFSET           11
-#define HCI_CMD_BUF_OFFSET              7
-#define HCI_TX_ACL_RSVD_SIZE            8
 #define HCI_RX_ACL_BUF_OFFSET           19
 #define HCI_RX_ISO_BUF_OFFSET           19
-#define HCI_TX_ISO_BUF_OFFSET           11
+
+#define HCI_TX_ACL_RSVD_SIZE            8
 #define HCI_TX_ISO_RSVD_SIZE            8
 
+#if defined(CONFIG_SOC_SERIES_RTL87X2J)
+#define RTK_BT_VHCI_VERSION 3
+#else
+#define RTK_BT_VHCI_VERSION 2
+#define HCI_CMD_BUF_OFFSET              7
+#define HCI_TX_ACL_BUF_OFFSET           11
+#define HCI_TX_ISO_BUF_OFFSET           11
+#endif
+
+#if (RTK_BT_VHCI_VERSION == 3)
+typedef enum
+{
+    HCI_IF_EVT_OPEN_CMPL    = 0x00, /* hci I/F open completed */
+    HCI_IF_EVT_CLOSE_CMPL   = 0x01, /* hci I/F close completed */
+    HCI_IF_EVT_DATA_IND     = 0x02, /* hci I/F rx data indicated */
+    HCI_IF_EVT_DATA_XMIT    = 0x03, /* hci I/F tx data transmitted */
+    HCI_IF_EVT_ERROR        = 0x04, /* hci I/F error occurred */
+    HCI_IF_EVT_OPEN_FAIL    = 0x05, /* hci I/F open failed */
+    HCI_IF_EVT_CLOSE_FAIL   = 0x06, /* hci I/F close failed */
+} T_HCI_IF_EVT;
+
+typedef uint8_t (*P_HCI_IF_CALLBACK_V3)(T_HCI_IF_EVT  evt,
+    uint8_t      *p_buf,
+    uint32_t      len);
+extern bool (*vhci_open)(P_HCI_IF_CALLBACK_V3 p_callback);
+#else
 typedef enum
 {
     HCI_IF_EVT_OPENED = 0,     /* hci I/F open completed */
@@ -31,9 +63,8 @@ typedef enum
 } T_HCI_IF_EVT;
 
 typedef bool (*P_HCI_IF_CALLBACK)(T_HCI_IF_EVT evt, bool status, uint8_t *p_buf, uint32_t len);
-
-
 extern bool (*vhci_open)(P_HCI_IF_CALLBACK p_callback);
+#endif
 extern bool (*vhci_send)(void *p_buf, uint32_t len);
 extern bool (*vhci_ack)(void *p_buf);
 
@@ -176,6 +207,23 @@ bool rtl_bt_hci_h2c_buf_alloc(T_RTL_BT_HCI_BUF *p_hci_buf, uint8_t h4_type, uint
         goto FAILED;
     }
 
+#if (RTK_BT_VHCI_VERSION == 3)
+    if (h4_type == H4_ACL)
+    {
+        pkt_offset = (sizeof(void *));
+        buf_size = data_size + pkt_offset + 1 + HCI_TX_ACL_RSVD_SIZE;
+    }
+    else if (h4_type == H4_ISO)
+    {
+        pkt_offset = (sizeof(void *));
+        buf_size = data_size + pkt_offset + 1 + HCI_TX_ISO_RSVD_SIZE;
+    }
+    else if (h4_type == H4_CMD)
+    {
+        pkt_offset = (sizeof(void *));
+        buf_size = data_size + pkt_offset + 1 ;
+    }
+#else
     if (h4_type == H4_ACL)
     {
         pkt_offset = HCI_TX_ACL_BUF_OFFSET;
@@ -191,6 +239,7 @@ bool rtl_bt_hci_h2c_buf_alloc(T_RTL_BT_HCI_BUF *p_hci_buf, uint8_t h4_type, uint
         pkt_offset = HCI_CMD_BUF_OFFSET;
         buf_size = data_size + pkt_offset + 1 ;
     }
+#endif
     else
     {
         err_idx = 2;
@@ -418,7 +467,107 @@ bool rtl_bt_hci_h2c_buf_rel(T_RTL_BT_HCI_BUF hci_buf)
     return rtl_bt_hci_h2c_buf_release(hci_buf.p_h2c_buf);
 }
 
+#if (RTK_BT_VHCI_VERSION == 3)
+uint8_t rtl_bt_hci_cb(T_HCI_IF_EVT evt, uint8_t *p_buf, uint32_t len)
+{
+    bool result = true;
 
+#if F_RTK_BT_HCI_DRIVER_DEBUG_LOG
+    DBG_DIRECT("[BT] c2h cb v3: evt %d, p_buf %p, len %d", evt, (void *)p_buf, len);
+#endif
+
+    switch (evt)
+    {
+    case HCI_IF_EVT_OPEN_CMPL:
+        {
+            if (p_rtl_bt_hci_cb)
+            {
+                result = (*p_rtl_bt_hci_cb)(BT_HCI_EVT_OPENED, true, NULL, 0);
+            }
+        }
+        break;
+
+    case HCI_IF_EVT_OPEN_FAIL:
+        {
+            if (p_rtl_bt_hci_cb)
+            {
+                result = (*p_rtl_bt_hci_cb)(BT_HCI_EVT_OPENED, false, NULL, 0);
+            }
+        }
+        break;
+
+    case HCI_IF_EVT_DATA_IND:
+        {
+            if (p_buf[0] == H4_EVT)
+            {
+                if (p_rtl_bt_hci_cb)
+                {
+                    BT_SNOOP_UP(len, p_buf);
+
+                    result = (*p_rtl_bt_hci_cb)(BT_HCI_EVT_DATA_IND, true, p_buf, len);
+                    break;
+                }
+            }
+            else if (p_buf[0] == H4_ACL)
+            {
+                if (p_rtl_bt_hci_cb)
+                {
+                    if (len > HCI_RX_ACL_BUF_OFFSET)
+                    {
+                        p_buf[HCI_RX_ACL_BUF_OFFSET] = H4_ACL;
+                        BT_SNOOP_UP(len - HCI_RX_ACL_BUF_OFFSET, p_buf + HCI_RX_ACL_BUF_OFFSET);
+
+                        result = (*p_rtl_bt_hci_cb)(BT_HCI_EVT_DATA_IND, true, p_buf + HCI_RX_ACL_BUF_OFFSET,
+                                                    len - HCI_RX_ACL_BUF_OFFSET);
+                        break;
+                    }
+
+                }
+            }
+            else if (p_buf[0] == H4_ISO)
+            {
+                if (p_rtl_bt_hci_cb)
+                {
+                    if (len > HCI_RX_ISO_BUF_OFFSET)
+                    {
+                        p_buf[HCI_RX_ISO_BUF_OFFSET] = H4_ISO;
+                        BT_SNOOP_UP(len - HCI_RX_ISO_BUF_OFFSET, p_buf + HCI_RX_ISO_BUF_OFFSET);
+
+                        result = (*p_rtl_bt_hci_cb)(BT_HCI_EVT_DATA_IND, true, p_buf + HCI_RX_ISO_BUF_OFFSET,
+                                                    len - HCI_RX_ISO_BUF_OFFSET);
+                        break;
+                    }
+
+                }
+            }
+            else
+            {
+                DBG_DIRECT("[BT] c2h cb v3: unknown pkt type %d", p_buf[0]);
+                result = false;
+            }
+#if F_RTK_BT_HCI_DRIVER_DEBUG_LOG
+            DBG_DIRECT("[BT] c2h v3: type %d, vhci_ack %p", p_buf[0], p_buf);
+#endif
+            vhci_ack(p_buf);
+        }
+        break;
+
+    case HCI_IF_EVT_DATA_XMIT:
+        {
+            rtl_bt_hci_h2c_buf_release(p_buf);
+        }
+        break;
+
+    default:
+        result = false;
+        break;
+    }
+#if F_RTK_BT_HCI_DRIVER_DEBUG_LOG
+    //DBG_DIRECT("[BT] c2h cb v3: end, p_buf %p", p_buf);
+#endif
+    return 0;
+}
+#else
 bool rtl_bt_hci_cb(T_HCI_IF_EVT evt, bool status, uint8_t *p_buf, uint32_t len)
 {
     bool result = true;
@@ -444,7 +593,7 @@ bool rtl_bt_hci_cb(T_HCI_IF_EVT evt, bool status, uint8_t *p_buf, uint32_t len)
             {
                 if (p_rtl_bt_hci_cb)
                 {
-                    BT_SNOOP_UP_TRACE(len, p_buf);
+                    BT_SNOOP_UP(len, p_buf);
 
                     result = (*p_rtl_bt_hci_cb)(BT_HCI_EVT_DATA_IND, status, p_buf, len);
                     break;
@@ -457,7 +606,7 @@ bool rtl_bt_hci_cb(T_HCI_IF_EVT evt, bool status, uint8_t *p_buf, uint32_t len)
                     if (len > HCI_RX_ACL_BUF_OFFSET)
                     {
                         p_buf[HCI_RX_ACL_BUF_OFFSET] = H4_ACL;
-                        BT_SNOOP_UP_TRACE(len - HCI_RX_ACL_BUF_OFFSET, p_buf + HCI_RX_ACL_BUF_OFFSET);
+                        BT_SNOOP_UP(len - HCI_RX_ACL_BUF_OFFSET, p_buf + HCI_RX_ACL_BUF_OFFSET);
 
                         result = (*p_rtl_bt_hci_cb)(BT_HCI_EVT_DATA_IND, status, p_buf + HCI_RX_ACL_BUF_OFFSET,
                                                     len - HCI_RX_ACL_BUF_OFFSET);
@@ -473,7 +622,7 @@ bool rtl_bt_hci_cb(T_HCI_IF_EVT evt, bool status, uint8_t *p_buf, uint32_t len)
                     if (len > HCI_RX_ISO_BUF_OFFSET)
                     {
                         p_buf[HCI_RX_ISO_BUF_OFFSET] = H4_ISO;
-                        BT_SNOOP_UP_TRACE(len - HCI_RX_ISO_BUF_OFFSET, p_buf + HCI_RX_ISO_BUF_OFFSET);
+                        BT_SNOOP_UP(len - HCI_RX_ISO_BUF_OFFSET, p_buf + HCI_RX_ISO_BUF_OFFSET);
 
                         result = (*p_rtl_bt_hci_cb)(BT_HCI_EVT_DATA_IND, status, p_buf + HCI_RX_ISO_BUF_OFFSET,
                                                     len - HCI_RX_ISO_BUF_OFFSET);
@@ -509,6 +658,7 @@ bool rtl_bt_hci_cb(T_HCI_IF_EVT evt, bool status, uint8_t *p_buf, uint32_t len)
 #endif
     return result;
 }
+#endif
 
 bool rtl_bt_hci_open(P_RTL_BT_HCI_CALLBACK p_callback)
 {
@@ -522,16 +672,16 @@ bool rtl_bt_hci_send(T_RTL_BT_HCI_BUF hci_buf)
     {
         if (hci_buf.p_h2c_buf[0] == H4_CMD)
         {
-            BT_SNOOP_DOWN_TRACE(hci_buf.h2c_buf_size, hci_buf.p_h2c_buf);
+            BT_SNOOP_DOWN(hci_buf.h2c_buf_size, hci_buf.p_h2c_buf);
         }
         else if (hci_buf.p_h2c_buf[0] == H4_ACL)
         {
-            BT_SNOOP_DOWN_TRACE(hci_buf.h2c_buf_size - HCI_TX_ACL_RSVD_SIZE,
+            BT_SNOOP_DOWN(hci_buf.h2c_buf_size - HCI_TX_ACL_RSVD_SIZE,
                                 hci_buf.p_h2c_buf + HCI_TX_ACL_RSVD_SIZE);
         }
         else if (hci_buf.p_h2c_buf[0] == H4_ISO)
         {
-            BT_SNOOP_DOWN_TRACE(hci_buf.h2c_buf_size - HCI_TX_ISO_RSVD_SIZE,
+            BT_SNOOP_DOWN(hci_buf.h2c_buf_size - HCI_TX_ISO_RSVD_SIZE,
                                 hci_buf.p_h2c_buf + HCI_TX_ISO_RSVD_SIZE);
         }
 #if F_RTK_BT_HCI_DRIVER_DEBUG_LOG
