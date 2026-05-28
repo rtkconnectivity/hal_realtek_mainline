@@ -3,6 +3,9 @@ SECTIONS
     PROVIDE(srand_bl = 0x0200063d);
     PROVIDE(GTC_CounterToUs = 0x0200113d);
     PROVIDE(GTC_UsToCounter = 0x0200117d);
+    PROVIDE(eflash_erase = 0x2006171);
+    PROVIDE(eflash_read = 0x20061ad);
+    PROVIDE(eflash_write = 0x20061ef);
     PROVIDE(get_soc_rtl_num = 0x020065dd);
     PROVIDE(image_addr_get = 0x020073d1);
     PROVIDE(image_customer_name_get = 0x02007419);
