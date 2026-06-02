@@ -22,19 +22,18 @@
 #define F_RTK_BT_HCI_H2C_POOL_DEBUG_LOG 0
 #define F_RTK_BT_HCI_DRIVER_DEBUG_LOG   0
 
-#define HCI_RX_ACL_BUF_OFFSET           19
-#define HCI_RX_ISO_BUF_OFFSET           19
-
-#define HCI_TX_ACL_RSVD_SIZE            8
-#define HCI_TX_ISO_RSVD_SIZE            8
-
 #if defined(CONFIG_SOC_SERIES_RTL87X2J)
 #define RTK_BT_VHCI_VERSION 3
+#define HCI_CMD_BUF_OFFSET              7
+#define HCI_TX_ACL_RSVD_SIZE            19
+#define HCI_TX_ISO_RSVD_SIZE            19
 #else
 #define RTK_BT_VHCI_VERSION 2
-#define HCI_CMD_BUF_OFFSET              7
-#define HCI_TX_ACL_BUF_OFFSET           11
-#define HCI_TX_ISO_BUF_OFFSET           11
+#define HCI_RX_ACL_BUF_OFFSET           19
+#define HCI_RX_ISO_BUF_OFFSET           19
+#define HCI_CMD_BUF_OFFSET              0
+#define HCI_TX_ACL_RSVD_SIZE            8
+#define HCI_TX_ISO_RSVD_SIZE            8
 #endif
 
 #if (RTK_BT_VHCI_VERSION == 3)
@@ -51,8 +50,10 @@ typedef enum
 
 typedef uint8_t (*P_HCI_IF_CALLBACK_V3)(T_HCI_IF_EVT  evt,
     uint8_t      *p_buf,
+    uint32_t      offset,
     uint32_t      len);
 extern bool (*vhci_open)(P_HCI_IF_CALLBACK_V3 p_callback);
+extern bool (*vhci_send)(void *p_buf, uint32_t offset, uint32_t len);
 #else
 typedef enum
 {
@@ -64,8 +65,8 @@ typedef enum
 
 typedef bool (*P_HCI_IF_CALLBACK)(T_HCI_IF_EVT evt, bool status, uint8_t *p_buf, uint32_t len);
 extern bool (*vhci_open)(P_HCI_IF_CALLBACK p_callback);
-#endif
 extern bool (*vhci_send)(void *p_buf, uint32_t len);
+#endif
 extern bool (*vhci_ack)(void *p_buf);
 
 P_RTL_BT_HCI_CALLBACK p_rtl_bt_hci_cb = NULL;
@@ -195,7 +196,7 @@ bool rtl_bt_hci_h2c_buf_alloc(T_RTL_BT_HCI_BUF *p_hci_buf, uint8_t h4_type, uint
     T_BT_HCI_BUFFER *p_prev_hdr;
     T_BT_HCI_BUFFER *p_curr_hdr;
     uint16_t         buf_size;
-    uint8_t          pkt_offset;
+    uint8_t          pkt_offset = (sizeof(void *));
     uint8_t          err_idx = 0;
     uint32_t         s;
 
@@ -207,39 +208,18 @@ bool rtl_bt_hci_h2c_buf_alloc(T_RTL_BT_HCI_BUF *p_hci_buf, uint8_t h4_type, uint
         goto FAILED;
     }
 
-#if (RTK_BT_VHCI_VERSION == 3)
     if (h4_type == H4_ACL)
     {
-        pkt_offset = (sizeof(void *));
         buf_size = data_size + pkt_offset + 1 + HCI_TX_ACL_RSVD_SIZE;
     }
     else if (h4_type == H4_ISO)
     {
-        pkt_offset = (sizeof(void *));
         buf_size = data_size + pkt_offset + 1 + HCI_TX_ISO_RSVD_SIZE;
     }
     else if (h4_type == H4_CMD)
     {
-        pkt_offset = (sizeof(void *));
-        buf_size = data_size + pkt_offset + 1 ;
+        buf_size = data_size + pkt_offset + 1 + HCI_CMD_BUF_OFFSET;
     }
-#else
-    if (h4_type == H4_ACL)
-    {
-        pkt_offset = HCI_TX_ACL_BUF_OFFSET;
-        buf_size = data_size + pkt_offset + 1 + HCI_TX_ACL_RSVD_SIZE;
-    }
-    else if (h4_type == H4_ISO)
-    {
-        pkt_offset = HCI_TX_ISO_BUF_OFFSET;
-        buf_size = data_size + pkt_offset + 1 + HCI_TX_ISO_RSVD_SIZE;
-    }
-    else if (h4_type == H4_CMD)
-    {
-        pkt_offset = HCI_CMD_BUF_OFFSET;
-        buf_size = data_size + pkt_offset + 1 ;
-    }
-#endif
     else
     {
         err_idx = 2;
@@ -319,10 +299,14 @@ bool rtl_bt_hci_h2c_buf_alloc(T_RTL_BT_HCI_BUF *p_hci_buf, uint8_t h4_type, uint
         p_hci_buf->h2c_buf_size_max += HCI_TX_ISO_RSVD_SIZE;
         memcpy(p_buf + pkt_offset + HCI_TX_ISO_RSVD_SIZE, &h4_type, 1);
     }
+    else if (h4_type == H4_CMD && HCI_CMD_BUF_OFFSET != 0)
+    {
+        p_hci_buf->h2c_buf_size   += HCI_CMD_BUF_OFFSET;
+        p_hci_buf->h2c_buf_size_max += HCI_CMD_BUF_OFFSET;
+        memcpy(p_buf + pkt_offset + HCI_CMD_BUF_OFFSET, &h4_type, 1);
+    }
 
-
-    uint32_t buffer_addr = (uint32_t)p_buf;
-    memcpy(p_buf + pkt_offset - 4, &buffer_addr, 4);
+    memcpy(p_buf + pkt_offset - sizeof(p_buf), &p_buf, sizeof(p_buf));
 
     hci_if_pool.buf_num_used++;
 
@@ -366,7 +350,6 @@ bool rtl_bt_hci_h2c_buf_release(uint8_t *p_h2c_buf)
     T_BT_HCI_BUFFER          *p_hdr;
     T_BT_HCI_BUFFER          *p_curr_hdr;
     void                     *p_buf = NULL;
-    uint32_t                  buffer_addr;
     uint32_t                  s;
     uint8_t                   err_idx = 0;
 
@@ -378,8 +361,7 @@ bool rtl_bt_hci_h2c_buf_release(uint8_t *p_h2c_buf)
         goto FAILED;
     }
 
-    memcpy(&buffer_addr, p_h2c_buf - 4, 4);
-    p_buf = (uint32_t *)buffer_addr;
+    memcpy(&p_buf, p_h2c_buf - sizeof(p_buf), sizeof(p_buf));
 
     if ((p_buf == NULL) || ((size_t)p_buf & BT_HCI_POOL_BUFFER_ADDR_MASK))
     {
@@ -468,12 +450,12 @@ bool rtl_bt_hci_h2c_buf_rel(T_RTL_BT_HCI_BUF hci_buf)
 }
 
 #if (RTK_BT_VHCI_VERSION == 3)
-uint8_t rtl_bt_hci_cb(T_HCI_IF_EVT evt, uint8_t *p_buf, uint32_t len)
+uint8_t rtl_bt_hci_cb(T_HCI_IF_EVT evt, uint8_t *p_buf, uint32_t offset, uint32_t len)
 {
     bool result = true;
 
 #if F_RTK_BT_HCI_DRIVER_DEBUG_LOG
-    DBG_DIRECT("[BT] c2h cb v3: evt %d, p_buf %p, len %d", evt, (void *)p_buf, len);
+    DBG_DIRECT("[BT] c2h cb v3: evt %d, p_buf %p, offset %d, len %d", evt, (void *)p_buf, offset, len);
 #endif
 
     switch (evt)
@@ -498,46 +480,23 @@ uint8_t rtl_bt_hci_cb(T_HCI_IF_EVT evt, uint8_t *p_buf, uint32_t len)
 
     case HCI_IF_EVT_DATA_IND:
         {
-            if (p_buf[0] == H4_EVT)
+            uint8_t *p_c2h_buf;
+            uint16_t buf_offset;
+            offset -= 1;
+            len    += 1;
+            p_buf[offset] = p_buf[0];
+            p_c2h_buf = p_buf + offset;
+            buf_offset = offset;
+
+            if (p_buf[0] == H4_EVT || p_buf[0] == H4_ACL || p_buf[0] == H4_ISO)
             {
                 if (p_rtl_bt_hci_cb)
                 {
-                    BT_SNOOP_UP(len, p_buf);
+                    BT_SNOOP_UP(len, p_c2h_buf);
 
-                    result = (*p_rtl_bt_hci_cb)(BT_HCI_EVT_DATA_IND, true, p_buf, len);
+                    memcpy(p_c2h_buf - sizeof(buf_offset), &buf_offset, sizeof(buf_offset));
+                    result = (*p_rtl_bt_hci_cb)(BT_HCI_EVT_DATA_IND, true, p_c2h_buf, len);
                     break;
-                }
-            }
-            else if (p_buf[0] == H4_ACL)
-            {
-                if (p_rtl_bt_hci_cb)
-                {
-                    if (len > HCI_RX_ACL_BUF_OFFSET)
-                    {
-                        p_buf[HCI_RX_ACL_BUF_OFFSET] = H4_ACL;
-                        BT_SNOOP_UP(len - HCI_RX_ACL_BUF_OFFSET, p_buf + HCI_RX_ACL_BUF_OFFSET);
-
-                        result = (*p_rtl_bt_hci_cb)(BT_HCI_EVT_DATA_IND, true, p_buf + HCI_RX_ACL_BUF_OFFSET,
-                                                    len - HCI_RX_ACL_BUF_OFFSET);
-                        break;
-                    }
-
-                }
-            }
-            else if (p_buf[0] == H4_ISO)
-            {
-                if (p_rtl_bt_hci_cb)
-                {
-                    if (len > HCI_RX_ISO_BUF_OFFSET)
-                    {
-                        p_buf[HCI_RX_ISO_BUF_OFFSET] = H4_ISO;
-                        BT_SNOOP_UP(len - HCI_RX_ISO_BUF_OFFSET, p_buf + HCI_RX_ISO_BUF_OFFSET);
-
-                        result = (*p_rtl_bt_hci_cb)(BT_HCI_EVT_DATA_IND, true, p_buf + HCI_RX_ISO_BUF_OFFSET,
-                                                    len - HCI_RX_ISO_BUF_OFFSET);
-                        break;
-                    }
-
                 }
             }
             else
@@ -670,25 +629,36 @@ bool rtl_bt_hci_send(T_RTL_BT_HCI_BUF hci_buf)
 {
     if (hci_buf.p_h2c_buf)
     {
+        uint8_t pkt_offset;
         if (hci_buf.p_h2c_buf[0] == H4_CMD)
         {
-            BT_SNOOP_DOWN(hci_buf.h2c_buf_size, hci_buf.p_h2c_buf);
+            pkt_offset = HCI_CMD_BUF_OFFSET;
         }
         else if (hci_buf.p_h2c_buf[0] == H4_ACL)
         {
-            BT_SNOOP_DOWN(hci_buf.h2c_buf_size - HCI_TX_ACL_RSVD_SIZE,
-                                hci_buf.p_h2c_buf + HCI_TX_ACL_RSVD_SIZE);
+            pkt_offset = HCI_TX_ACL_RSVD_SIZE;
         }
         else if (hci_buf.p_h2c_buf[0] == H4_ISO)
         {
-            BT_SNOOP_DOWN(hci_buf.h2c_buf_size - HCI_TX_ISO_RSVD_SIZE,
-                                hci_buf.p_h2c_buf + HCI_TX_ISO_RSVD_SIZE);
+            pkt_offset = HCI_TX_ISO_RSVD_SIZE;
         }
+        else
+        {
+            return false;
+        }
+        BT_SNOOP_DOWN(hci_buf.h2c_buf_size - pkt_offset,
+            hci_buf.p_h2c_buf + pkt_offset);
 #if F_RTK_BT_HCI_DRIVER_DEBUG_LOG
-        DBG_DIRECT("[BT] h2c data: p_buf %p, len %d, type %d", hci_buf.p_h2c_buf,
-                   hci_buf.h2c_buf_size, hci_buf.p_h2c_buf[0]);
+        DBG_DIRECT("[BT] h2c data: p_buf %p, len %d, pkt_offset %d, type %d", hci_buf.p_h2c_buf,
+                   hci_buf.h2c_buf_size, pkt_offset, hci_buf.p_h2c_buf[0]);
 #endif
+
+#if (RTK_BT_VHCI_VERSION == 3)
+        pkt_offset++;
+        if (vhci_send(hci_buf.p_h2c_buf, pkt_offset, hci_buf.h2c_buf_size - pkt_offset))
+#else
         if (vhci_send(hci_buf.p_h2c_buf, hci_buf.h2c_buf_size))
+#endif
         {
             return true;
         }
@@ -700,6 +670,17 @@ void rtl_bt_hci_ack(uint8_t *p_buf)
 {
     if (p_buf)
     {
+#if (RTK_BT_VHCI_VERSION == 3)
+        uint8_t *p_controller_buf;
+        uint16_t buf_offset;
+
+        memcpy(&buf_offset, p_buf - sizeof(buf_offset), sizeof(buf_offset));
+        p_controller_buf = p_buf - buf_offset;
+#if F_RTK_BT_HCI_DRIVER_DEBUG_LOG
+        DBG_DIRECT("[BT] event vhci_ack %p, buf_offset %d", p_controller_buf, buf_offset);
+#endif
+        vhci_ack(p_controller_buf);
+#else
         if (p_buf[0] == H4_EVT)
         {
 #if F_RTK_BT_HCI_DRIVER_DEBUG_LOG
@@ -721,5 +702,6 @@ void rtl_bt_hci_ack(uint8_t *p_buf)
 #endif
             vhci_ack(p_buf - HCI_RX_ISO_BUF_OFFSET);
         }
+#endif
     }
 }
