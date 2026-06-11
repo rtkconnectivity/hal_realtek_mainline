@@ -137,6 +137,25 @@ typedef enum
   */
 #endif
 
+#if (GRTC_SUPPORT_RELOAD_MODE == 1)
+/**
+ * \defgroup    GRTC_RELOAD_MODE GRTC Reload Mode
+ * \{
+ * \ingroup     GRTC_Exported_Constants
+ */
+typedef enum
+{
+    GRTC_RELOAD_WITH_CURRENT_COMPARE = 0,
+    GRTC_RELOAD_WITH_CURRENT_COUNTER = 1,
+} GRTCReloadMode_TypeDef;
+
+#define IS_GRTC_RELOAD_MODE(MODE)  (((MODE) == GRTC_RELOAD_WITH_CURRENT_COMPARE) || \
+                                    ((MODE) == GRTC_RELOAD_WITH_CURRENT_COUNTER))
+/** End of GRTC_RELOAD_MODE
+  * \}
+  */
+#endif
+
 /** End of GRTC_Exported_Constants
   * \}
   */
@@ -365,6 +384,17 @@ uint32_t GRTC_GetCompValue(GRTCCompIndex_TypeDef Index);
  */
 void GRTC_CompReloadCmd(GRTCCompIndex_TypeDef Index, FunctionalState NewState);
 
+#if (GRTC_SUPPORT_RELOAD_MODE == 1)
+/**
+  * \brief  Config GRTC reload mode.
+  * \param  Index: The comparator number which can be 0 ~ 7.
+  * \param  Mode: Reload mode.
+  *         This parameter can be the following values:
+  *         \arg GRTC_RELOAD_WITH_CURRENT_COMPARE: CMP = current compare + CMP_RELOAD.
+  *         \arg GRTC_RELOAD_WITH_CURRENT_COUNTER: CMP = current counter + CMP_RELOAD.
+  */
+void GRTC_ReloadModeConfig(GRTCCompIndex_TypeDef Index, GRTCReloadMode_TypeDef Mode);
+#endif
 /**
  * \brief     Set GRTC comparator reload value.
  *

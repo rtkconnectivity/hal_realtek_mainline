@@ -51,7 +51,7 @@ typedef enum
 } I2SScheme_TypeDef;
 
 #define IS_I2S_SCHEME(SCHEME) (((SCHEME) == I2S_SCHEME_SEPARATE) || \
-                               ((SCHEME) == I2S_SCHEME_DEPENDENT)))
+                               ((SCHEME) == I2S_SCHEME_DEPENDENT))
 
 /** End of I2S_Scheme
   * \}
@@ -448,7 +448,7 @@ typedef struct
 #define IS_I2S_INT_CONFIG(INT)          (((INT) == I2S_INT_TX_IDLE) || ((INT) == I2S_INT_RF_EMPTY) || \
                                          ((INT) == I2S_INT_TF_EMPTY) || ((INT) == I2S_INT_RF_FULL) || \
                                          ((INT) == I2S_INT_TF_FULL) || ((INT) == I2S_INT_RX_READY) || \
-                                         ((INT) == I2S_INT_TX_READY) )
+                                         ((INT) == I2S_INT_TX_READY))
 
 /** End of I2S_Interrupt_Definition
   * \}
@@ -470,8 +470,12 @@ typedef struct
 
 #define IS_I2S_CLEAR_INT(CLEAR)          (((CLEAR) == I2S_CLEAR_INT_RX_READY) || \
                                           ((CLEAR) == I2S_CLEAR_INT_TX_READY) || \
-                                          (CLEAR) == I2S_CLEAR_INT_RX_READY) || \
-((CLEAR) == I2S_CLEAR_INT_TX_READY) )
+                                          ((CLEAR) == I2S_CLEAR_INT_RX_READY) || \
+                                          ((CLEAR) == I2S_CLEAR_INT_TX_READY) || \
+                                          ((CLEAR) == I2S_CLEAR_INT_RF_EMPTY) || \
+                                          ((CLEAR) == I2S_CLEAR_INT_TF_EMPTY) || \
+                                          ((CLEAR) == I2S_CLEAR_INT_RF_FULL) || \
+                                          ((CLEAR) == I2S_CLEAR_INT_TF_FULL))
 
 /** End of I2S_Clear_Interrupt_Definition
   * \}

@@ -709,38 +709,38 @@ typedef union
 
 
 /* 0x04
-   0       R/WAC  reg_timer_0_oneshot_go                      1'h0
-   1       R/WAC  reg_timer_1_oneshot_go                      1'h0
-   2       R/WAC  reg_timer_2_oneshot_go                      1'h0
-   3       R/WAC  reg_timer_3_oneshot_go                      1'h0
-   4       R/WAC  reg_timer_4_oneshot_go                      1'h0
-   5       R/WAC  reg_timer_5_oneshot_go                      1'h0
-   6       R/WAC  reg_timer_6_oneshot_go                      1'h0
-   7       R/WAC  reg_timer_7_oneshot_go                      1'h0
-   8       R/WAC  reg_timer_8_oneshot_go                      1'h0
-   9       R      RESERVED2523                                1'h0
-   10      R      RESERVED2522                                1'h0
-   11      R      RESERVED2521                                1'h0
-   12      R      RESERVED2520                                1'h0
-   13      R      RESERVED2519                                1'h0
-   14      R      RESERVED2518                                1'h0
-   15      R      RESERVED2517                                1'h0
-   16      R      RESERVED2516                                1'h0
-   17      R      RESERVED2515                                1'h0
-   18      R      RESERVED2514                                1'h0
-   19      R      RESERVED2513                                1'h0
-   20      R      RESERVED2512                                1'h0
-   21      R      RESERVED2511                                1'h0
-   22      R      RESERVED2510                                1'h0
-   23      R      RESERVED2509                                1'h0
-   24      R      RESERVED2508                                1'h0
-   25      R      RESERVED2507                                1'h0
-   26      R      RESERVED2506                                1'h0
-   27      R      RESERVED2505                                1'h0
-   28      R      RESERVED2504                                1'h0
-   29      R      RESERVED2503                                1'h0
-   30      R      RESERVED2502                                1'h0
-   31      R      RESERVED2501                                1'h0
+   0       R/WAC  reg_timer_0_oneshot_go                              1'h0
+   1       R/WAC  reg_timer_1_oneshot_go                              1'h0
+   2       R/WAC  reg_timer_2_oneshot_go                              1'h0
+   3       R/WAC  reg_timer_3_oneshot_go                              1'h0
+   4       R/WAC  reg_timer_4_oneshot_go                              1'h0
+   5       R/WAC  reg_timer_5_oneshot_go                              1'h0
+   6       R/WAC  reg_timer_6_oneshot_go                              1'h0
+   7       R/WAC  reg_timer_7_oneshot_go                              1'h0
+   8       R/WAC  reg_timer_8_oneshot_go                              1'h0
+   9       R      RESERVED2523                                        1'h0
+   10      R      RESERVED2522                                        1'h0
+   11      R      RESERVED2521                                        1'h0
+   12      R      RESERVED2520                                        1'h0
+   13      R      RESERVED2519                                        1'h0
+   14      R      RESERVED2518                                        1'h0
+   15      R      RESERVED2517                                        1'h0
+   16      W      reg_timer_0_oneshot_go_wr_en                        1'h0
+   17      W      reg_timer_1_oneshot_go_wr_en                        1'h0
+   18      W      reg_timer_2_oneshot_go_wr_en                        1'h0
+   19      W      reg_timer_3_oneshot_go_wr_en                        1'h0
+   20      W      reg_timer_4_oneshot_go_wr_en                        1'h0
+   21      W      reg_timer_5_oneshot_go_wr_en                        1'h0
+   22      W      reg_timer_6_oneshot_go_wr_en                        1'h0
+   23      W      reg_timer_7_oneshot_go_wr_en                        1'h0
+   24      W      reg_timer_8_oneshot_go_wr_en                        1'h0
+   25      R      RESERVED2507                                        1'h0
+   26      R      RESERVED2506                                        1'h0
+   27      R      RESERVED2505                                        1'h0
+   28      R      RESERVED2504                                        1'h0
+   29      R      RESERVED2503                                        1'h0
+   30      R      RESERVED2502                                        1'h0
+   31      R      RESERVED2501                                        1'h0
 */
 typedef union
 {
@@ -756,15 +756,6 @@ typedef union
         uint32_t reg_timer_6_oneshot_go: 1;
         uint32_t reg_timer_7_oneshot_go: 1;
         uint32_t reg_timer_8_oneshot_go: 1;
-        const uint32_t reserved_22: 1;
-        const uint32_t reserved_21: 1;
-        const uint32_t reserved_20: 1;
-        const uint32_t reserved_19: 1;
-        const uint32_t reserved_18: 1;
-        const uint32_t reserved_17: 1;
-        const uint32_t reserved_16: 1;
-        const uint32_t reserved_15: 1;
-        const uint32_t reserved_14: 1;
         const uint32_t reserved_13: 1;
         const uint32_t reserved_12: 1;
         const uint32_t reserved_11: 1;
@@ -772,6 +763,15 @@ typedef union
         const uint32_t reserved_9: 1;
         const uint32_t reserved_8: 1;
         const uint32_t reserved_7: 1;
+        uint32_t reg_timer_0_oneshot_go_wr_en: 1;
+        uint32_t reg_timer_1_oneshot_go_wr_en: 1;
+        uint32_t reg_timer_2_oneshot_go_wr_en: 1;
+        uint32_t reg_timer_3_oneshot_go_wr_en: 1;
+        uint32_t reg_timer_4_oneshot_go_wr_en: 1;
+        uint32_t reg_timer_5_oneshot_go_wr_en: 1;
+        uint32_t reg_timer_6_oneshot_go_wr_en: 1;
+        uint32_t reg_timer_7_oneshot_go_wr_en: 1;
+        uint32_t reg_timer_8_oneshot_go_wr_en: 1;
         const uint32_t reserved_6: 1;
         const uint32_t reserved_5: 1;
         const uint32_t reserved_4: 1;

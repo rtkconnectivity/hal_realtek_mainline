@@ -52,6 +52,8 @@ extern "C" {
 #define ADC_SUPPORT_TIMER_TRIGGER                      (0)
 #define ADC_SUPPORT_AUTO_BOOT_PROTECT                  (1)
 #define ADC_SUPPORT_GET_VOTAGE_API                     (1)
+#define ADC_SUPPORT_GET_FT_ADC_PARA                    (1)
+#define ADC_SUPPORT_EXT_DIFFERENTIAL_MODE              (1)
 //#define ADC_POWER_MODE_CTRL_EN                      (0)  //if you need to configure the power mode, you can predefine this macro in the project settings.
 /** End of ADC_Defines
   * \}

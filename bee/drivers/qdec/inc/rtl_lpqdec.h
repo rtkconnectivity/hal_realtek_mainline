@@ -207,7 +207,7 @@ typedef enum
 #define LPQDEC_X_INT_FLAG_UNDERFLOW         BIT17
 #define LPQDEC_X_INT_FLAG_ILLEGAL           BIT19
 
-#define IS_LPQDEC_INT_FLAG_CONFIG(CONFIG)   (((CONFIG) == LPQDEC_X_INT_FLAG_NEW_COUNT) || \
+#define IS_LPQDEC_INT_FLAG_CONFIG(CONFIG)   (((CONFIG) == LPQDEC_X_INT_FLAG_NEW_DATA) || \
                                              ((CONFIG) == LPQDEC_X_INT_FLAG_OVERFLOW) || \
                                              ((CONFIG) == LPQDEC_X_INT_FLAG_UNDERFLOW) || \
                                              ((CONFIG) == LPQDEC_X_INT_FLAG_ILLEGAL))

@@ -114,7 +114,9 @@ extern "C" {
  */
 #define SCHEDULE_TABLE(Index)         (Index)
 #define EXT_SINGLE_ENDED(Index)       ((uint16_t)((ADC_MODE_SINGLE_ENDED_VALUE << CHIP_ADC_MODE_OFFSET) | ADC_MODE_EXTERNAL_CH_NUM(Index)))
+#if ADC_SUPPORT_EXT_DIFFERENTIAL_MODE
 #define EXT_DIFFERENTIAL(Index)       ((uint16_t)((ADC_MODE_DIFFERENTIAL_VALUE << CHIP_ADC_MODE_OFFSET) | ADC_MODE_EXTERNAL_CH_NUM(Index)))
+#endif
 
 #define INTERNAL_VBAT_MODE            ((uint16_t)((ADC_MODE_INTERNAL_VALUE << CHIP_ADC_MODE_OFFSET) | ADC_MODE_INTERNAL_VBAT_CH_NUM))
 #if ADC_SUPPORT_VADPIN_MODE
@@ -1056,6 +1058,13 @@ float ADC_GetVoltage(const ADCSampleMode_TypeDef SampleMode, ADCDataWidth Sample
                      ADCStatus_TypeDef *ErrorStatus);
 #endif
 
+#if (ADC_SUPPORT_GET_FT_ADC_PARA ==1)
+/**
+  * @brief  Initialize the ADC calibration process.
+  * @return A boolean value indicating the success of the calibration operation.
+  */
+bool ADC_CalibrationInit(void);
+#endif
 /** End of ADC_Exported_Functions
   * \}
   */

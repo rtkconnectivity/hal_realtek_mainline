@@ -5,124 +5,110 @@
  */
 
 /*============================================================================*
- *               Define to prevent recursive inclusion
+ *                        Define to prevent recursive inclusion
  *============================================================================*/
-#ifndef RTL_WDT_H
-#define RTL_WDT_H
+#ifndef RTL_LPPWM_H
+#define RTL_LPPWM_H
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 /*============================================================================*
- *                               Header Files
-*============================================================================*/
+ *                        Header Files
+ *============================================================================*/
 #include "utils/rtl_utils.h"
-#if defined (CONFIG_SOC_SERIES_RTL87X2G)
-#include "wdt/src/rtl87x2g/rtl_wdt_def.h"
-#elif defined (CONFIG_SOC_SERIES_RTL87X3E)
-#include "wdt/src/rtl87x3e/rtl_wdt_def.h"
-#elif defined (CONFIG_SOC_SERIES_RTL87X3D)
-#include "wdt/src/rtl87x3d/rtl_wdt_def.h"
-#elif defined (CONFIG_SOC_SERIES_RTL8762J)
-#include "wdt/src/rtl87x2j/rtl_wdt_def.h"
+#if defined (CONFIG_SOC_SERIES_RTL87X2J)
+#include "pwm/src/device/rtl87x2j/rtl_lppwm_def.h"
 #endif
 
-/** \defgroup WDT         WDT
+/** \defgroup LPPWM    LPPWM
   * \brief
   * \{
   */
 
 /*============================================================================*
- *                         Types
+ *                        Constants
  *============================================================================*/
-/** \defgroup WDT_Exported_Types WDT Exported Types
+/** \defgroup LPPWM_Exported_Constants LPPWM Exported Constants
   * \brief
   * \{
   */
 
 /**
-  * \brief       WDT Mode structure definition.
-  *
-  * \ingroup     WDT_Exported_Types
-  */
+ * \defgroup    LPPWM_Output_Polarity LPPWM Output Polarity
+ * \{
+ * \ingroup     LPPWM_Exported_Constants
+ */
 typedef enum
 {
-    RESET_ALL = 0,                //!< Reset all.
-    RESET_ALL_EXCEPT_AON = 1,     //!< Reset all except RTC and some AON register.
-    INTERRUPT_CPU = 2,            //!< Interrupt CPU.
-    WDT_MODE_NUM = 3,             //!< The maximum selectable value for WDT mode.
-} WDTMode_TypeDef;
+    LPPWM_POLARITY_NORMAL = 0x0,
+    LPPWM_POLARITY_INVERT = 0x1,
+} LPPWMPolarity_TypeDef;
 
-#define IS_WDT_Mode(MODE) (((MODE) == RESET_ALL) || \
-                           ((MODE) == RESET_ALL_EXCEPT_AON) || \
-                           ((MODE) == INTERRUPT_CPU)) //!< Check if the input parameter is valid.
+#define IS_LPPWM_POLARITY(POLARITY)   (((POLARITY) == LPPWM_POLARITY_NORMAL ) || \
+                                       ((POLARITY) == LPPWM_POLARITY_INVERT))
 
-/** End of group WDT_Exported_Types
+/** End of LPPWM_Output_Polarity
+  * \}
+  */
+
+/** End of LPPWM_Exported_Constants
+  * \}
+  */
+
+/*============================================================================*
+ *                         Types
+ *============================================================================*/
+/** \defgroup LPPWM_Exported_Types LPPWM Exported Types
+  * \brief
+  * \{
+  */
+
+/**
+ * \brief       LPPWM init structure definition.
+ *
+ * \ingroup     LPPWM_Exported_Types
+ */
+typedef struct
+{
+    uint32_t LPPWM_Polarity;             /*!< Specifies the LPPWM Output pin polarity.
+                                              This parameter can be a value of /ref LPPWM Polarity. */
+
+    uint32_t LPPWM_PeriodHigh;            /*!< Specifies the LPPWM High Count. */
+
+    uint32_t LPPWM_PeriodLow;             /*!< Specifies the LPPWM Low Count. */
+
+} LPPWM_InitTypeDef;
+
+/** End of LPPWM_Exported_Types
   * \}
   */
 
 /*============================================================================*
  *                         Functions
  *============================================================================*/
-/** \defgroup WDT_Exported_Functions WDT Exported Functions
+/** \defgroup LPPWM_Exported_Functions LPPWM Exported Functions
+  * \brief
   * \{
   */
+void LPPWM_Init(LPPWM_TypeDef *LPPWMx, LPPWM_InitTypeDef *LPPWM_InitStruct);
 
-/**
- * \brief  Start WDT. This function will enable WDT clock, set and start WDT.
- *
- * \param[in]  TimeMs  WDT Timeout Time. Unit: ms.
- * \param[in]  Mode    Refer to \ref WDTMode_TypeDef. If the Reset WDT operation is not performed within the Timeout period,
- *                     the configured mode operation will be executed.
- *
- * \return  true or false.
- *          - true: WDT mode set successfully, enabling the function..
- *          - false: WDT setting failed.
- */
-bool WDT_Start(uint32_t TimeMs, WDTMode_TypeDef Mode);
+void LPPWM_StructInit(LPPWM_InitTypeDef *LPPWM_InitStruct);
 
-/**
- * \brief  Enable WDT.
- */
-void WDT_Enable(void);
+void LPPWM_Cmd(LPPWM_TypeDef *LPPWMx, FunctionalState NewState);
 
-/**
- * \brief  Disable WDT.
- */
-void WDT_Disable(void);
+void LPPWM_Reset(LPPWM_TypeDef *LPPWMx);
 
-/**
- * \brief  Kick WDT to restart WDT.
- */
-void WDT_Kick(void);
+void LPPWM_ChangeFreqAndDuty(LPPWM_TypeDef *LPPWMx, uint32_t period_high, uint32_t period_low);
 
-/**
- * \brief  Is WDT enable.
- *
- * \return Is WDT enable or not
- */
-bool WDT_IsEnable(void);
+uint32_t LPPWM_GetCurrentValue(LPPWM_TypeDef *LPPWMx);
 
-/**
- * \brief  Get WDT timeout.
- *
- * \return WDT timeout
- */
-uint32_t WDT_GetTimeoutMs(void);
-
-/**
- * \brief  Get WDT mode.
- *
- * \return WDT mode
- */
-WDTMode_TypeDef WDT_GetMode(void);
-
-/** End of WDT_Exported_Functions
+/** End of LPPWM_Exported_Functions
   * \}
   */
 
-/** End of WDT
+/** End of LPPWM
   * \}
   */
 
@@ -130,4 +116,4 @@ WDTMode_TypeDef WDT_GetMode(void);
 }
 #endif
 
-#endif /* RTL_WDT_H */
+#endif /* RTL_LPPWM_H */

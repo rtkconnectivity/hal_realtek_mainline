@@ -168,6 +168,10 @@ void ADC_Init(ADC_TypeDef *ADCx, ADC_InitTypeDef *ADC_InitStruct)
     /* Clear all interrupt flags */
     ADCx->ADC_INT |= (0x1f << 8);
 
+#if (ADC_SUPPORT_GET_FT_ADC_PARA ==1)
+    ADC_CalibrationInit();
+#endif
+
     return;
 }
 

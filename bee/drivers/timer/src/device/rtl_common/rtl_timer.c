@@ -325,19 +325,23 @@ void TIMER_Cmd(TIMER_TypeDef *TIMERx, FunctionalState NewState)
 
     uint32_t timerid = TIMER_GetTimerID(TIMERx);
     TIMER_ShareTypeDef *sharebase = TIMER_GetTimerShareBase(TIMERx);
+    TIMER_MODE_CFG_TypeDef timer_0x04 = {.d32 = TIMERx->TIMER_MODE_CFG};
 
     if (NewState != DISABLE)
     {
         sharebase->TIMER_EN_CTRL |= BIT(timerid);
-        TIMER_MODE_CFG_TypeDef timer_0x04 = {.d32 = TIMERx->TIMER_MODE_CFG};
         if (timer_0x04.b.reg_timer_oneshot_mode_en)
         {
-            sharebase->TIMER_ONESHOT_GO_CTRL |= BIT(timerid);
+            sharebase->TIMER_ONESHOT_GO_CTRL = (BIT(timerid) | BIT(timerid + 16));
         }
     }
     else
     {
         sharebase->TIMER_EN_CTRL &= ~(BIT(timerid));
+        if (timer_0x04.b.reg_timer_oneshot_mode_en)
+        {
+            sharebase->TIMER_ONESHOT_GO_CTRL = BIT(timerid + 16);
+        }
     }
 }
 

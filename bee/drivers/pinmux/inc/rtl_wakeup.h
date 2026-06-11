@@ -538,6 +538,10 @@ void System_WakeUpAdapterCmd(SystemWakeUpPolarity_TypeDef WakeUpPolarity, Functi
 void System_WakeUpMFBCmd(FunctionalState NewState);
 #endif
 
+#if (PAD_SUPPORT_SHIP_MODE_PAD_CONFIG == 1)
+void System_ShipModePadPullDownCmd(uint8_t Pin_Num, FunctionalState NewState);
+#endif
+
 #if (PAD_SUPPORT_DETECT_MODE == 1)
 /**
   * \brief  Selected the DETECT mode of PAD interrupt.

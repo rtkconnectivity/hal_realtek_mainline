@@ -238,10 +238,9 @@ void RTC_DeInit(void);
  *     RTC_SetPrescaler(RTC_PRESCALER_VALUE);
  *     RTC_SetCompValue(RTC_COMP_INDEX, RTC_COMP_VALUE);
  *
- *     RTC_MaskINTConfig(RTC_COMP_INDEX_INT, DISABLE);
  *     RTC_INTConfig(RTC_COMP_INDEX_INT, ENABLE);
+ *     RTC_NVICCmd(ENABLE);
  *
- *     RTC_NvCmd(ENABLE);
  *     RTC_Cmd(ENABLE);
  * }
  * \endcode
@@ -273,10 +272,9 @@ void RTC_SetPrescaler(uint16_t Vaule);
  *     RTC_SetPrescaler(RTC_PRESCALER_VALUE);
  *     RTC_SetCompValue(RTC_COMP_INDEX, RTC_COMP_VALUE);
  *
- *     RTC_MaskINTConfig(RTC_COMP_INDEX_INT, DISABLE);
  *     RTC_INTConfig(RTC_COMP_INDEX_INT, ENABLE);
+ *     RTC_NVICCmd(ENABLE);
  *
- *     RTC_NvCmd(ENABLE);
  *     RTC_Cmd(ENABLE);
  * }
  * \endcode
@@ -316,10 +314,9 @@ void RTC_Cmd(FunctionalState NewState);
  *     RTC_SetPrescaler(RTC_PRESCALER_VALUE);
  *     RTC_SetCompValue(RTC_COMP_INDEX, RTC_COMP_VALUE);
  *
- *     RTC_MaskINTConfig(RTC_COMP_INDEX_INT, DISABLE);
  *     RTC_INTConfig(RTC_COMP_INDEX_INT, ENABLE);
+ *     RTC_NVICCmd(ENABLE);
  *
- *     RTC_NvCmd(ENABLE);
  *     RTC_Cmd(ENABLE);
  * }
  * \endcode
@@ -363,10 +360,9 @@ void RTC_INTConfig(uint32_t RTC_INT, FunctionalState NewState);
  *     RTC_SetPrescaler(RTC_PRESCALER_VALUE);
  *     RTC_SetCompValue(RTC_COMP_INDEX, RTC_COMP_VALUE);
  *
- *     RTC_MaskINTConfig(RTC_COMP_INDEX_INT, DISABLE);
  *     RTC_INTConfig(RTC_COMP_INDEX_INT, ENABLE);
+ *     RTC_NVICCmd(ENABLE);
  *
- *     RTC_NvCmd(ENABLE);
  *     RTC_Cmd(ENABLE);
  * }
  * \endcode
@@ -396,10 +392,9 @@ void RTC_WakeUpConfig(uint32_t RTC_WAKEUP, FunctionalState NewState);
  *     RTC_SetPrescaler(RTC_PRESCALER_VALUE);
  *     RTC_SetCompValue(RTC_COMP_INDEX, RTC_COMP_VALUE);
  *
- *     RTC_MaskINTConfig(RTC_COMP_INDEX_INT, DISABLE);
  *     RTC_INTConfig(RTC_COMP_INDEX_INT, ENABLE);
+ *     RTC_NVICCmd(ENABLE);
  *
- *     RTC_NvCmd(ENABLE);
  *     RTC_Cmd(ENABLE);
  * }
  * \endcode
@@ -599,10 +594,9 @@ void RTC_ClearTickINT(void);
  *     RTC_SetPrescaler(RTC_PRESCALER_VALUE);
  *     RTC_SetCompValue(RTC_COMP_INDEX, RTC_COMP_VALUE);
  *
- *     RTC_MaskINTConfig(RTC_COMP_INDEX_INT, DISABLE);
  *     RTC_INTConfig(RTC_COMP_INDEX_INT, ENABLE);
+ *     RTC_NVICCmd(ENABLE);
  *
- *     RTC_NvCmd(ENABLE);
  *     RTC_Cmd(ENABLE);
  * }
  * \endcode
@@ -649,10 +643,9 @@ uint32_t RTC_GetCompValue(RTCCompIndex_TypeDef Index);
  *     RTC_SetPreCompValue(RTC_PRECOMP_VALUE);
  *     RTC_SetCompValue(RTC_COMP3, RTC_COMP3_VALUE);
  *
- *     RTC_MaskINTConfig(RTC_INT_PRECOMP_COMP3, DISABLE);
  *     RTC_INTConfig(RTC_INT_PRECOMP_COMP3, ENABLE);
+ *     RTC_NVICCmd(ENABLE);
  *
- *     RTC_NvCmd(ENABLE);
  *     RTC_Cmd(ENABLE);
  * }
  * \endcode
@@ -892,10 +885,9 @@ void RTC_DisableCompAutoReload(RTCCompIndex_TypeDef Index);
  *     RTC_SetPrescaler(RTC_PRESCALER_VALUE);
  *     RTC_SetCompValue(RTC_COMP_INDEX, RTC_COMP_VALUE);
  *
- *     RTC_MaskINTConfig(RTC_COMP_INDEX_INT, DISABLE);
  *     RTC_INTConfig(RTC_COMP_INDEX_INT, ENABLE);
+ *     RTC_NVICCmd(ENABLE);
  *
- *     RTC_NvCmd(ENABLE);
  *     RTC_Cmd(ENABLE);
  * }
  * \endcode

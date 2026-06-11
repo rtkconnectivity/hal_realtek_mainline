@@ -504,6 +504,39 @@ void System_WakeUpPDCmd(uint8_t Pin_Num, uint8_t Polarity, FunctionalState NewSt
     Pad_TableConfig(WAKEUP_EN, Pin_Num, NewState);
 }
 
+void System_ShipModePadPullDownCmd(uint8_t Pin_Num, FunctionalState NewState)
+{
+    static const uint8_t supported_pin_table[] =
+    {
+        P0_2, P0_4, P3_2, P3_3, P4_0, P4_1, P4_2, P4_3, P6_0, 0xFF, SPIC_WEN, SPIC_HOLDEN,
+    };
+
+    uint32_t target_bit_mask = 0;
+
+    for (uint8_t i = 0; i < sizeof(supported_pin_table); i++)
+    {
+        if ((supported_pin_table[i] == Pin_Num) && (Pin_Num != 0xFF))
+        {
+            target_bit_mask = BIT(i + 16);
+            break;
+        }
+    }
+
+    if (target_bit_mask == 0) { return; }
+
+    if (NewState == ENABLE)
+    {
+        AON_REG_UPDATE(AON_REG_SHIP_DPD_REG0X, target_bit_mask, target_bit_mask);
+    }
+    else
+    {
+        AON_REG_UPDATE(AON_REG_SHIP_DPD_REG0X, target_bit_mask, 0);
+        AON_REG_WRITE_BITFIELD(AON_REG_SHIP_DPD_REG0X, DPD_RCK, 0);
+        AON_REG_WRITE_BITFIELD(AON_REG_SHIP_DPD_REG0X, DPD_RCK, 1);
+        AON_REG_WRITE_BITFIELD(AON_REG_SHIP_DPD_REG0X, DPD_RCK, 0);
+    }
+}
+
 /*============================================================================*
  *                           PAD INTERRUPT
  *============================================================================*/
@@ -655,3 +688,5 @@ void System_RegisterPadWakeupCallback(uint8_t Pin_Num, P_PAD_CBACK Callback, uin
         }
     }
 }
+
+

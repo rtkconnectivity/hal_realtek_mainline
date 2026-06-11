@@ -55,6 +55,7 @@ extern "C" {
 #define PAD_SUPPORT_LOWER_POWER_CONFIG                 (1)
 #define PAD_SUPPORT_WAKE_SUB_IRQ                       (1)
 #define PAD_SUPPORT_WKIE_DIFF_BIT                      (1)
+#define PAD_SUPPORT_SHIP_MODE_PAD_CONFIG               (1)
 
 /** End of PINMUX_Defines
   * \}
