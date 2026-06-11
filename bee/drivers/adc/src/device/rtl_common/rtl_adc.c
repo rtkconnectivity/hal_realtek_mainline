@@ -246,7 +246,9 @@ void ADC_Cmd(ADC_TypeDef *ADCx, ADCOperationMode_TypeDef AdcMode, FunctionalStat
     assert_param(IS_ADC_MODE(AdcMode));
 
     ADC_CTRL_TypeDef adc_ctrl = {.d32 = ADCx->ADC_CTRL};
+#ifdef ADC_POWER_MODE_CTRL_EN
     ADC_POW_DATA_DLY_CTRL_TypeDef adc_pow_data_dly_ctrl = {.d32 = ADCx->ADC_POW_DATA_DLY_CTRL};
+#endif
 
     if (NewState == ENABLE)
     {

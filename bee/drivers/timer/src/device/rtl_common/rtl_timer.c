@@ -677,8 +677,6 @@ void TIMER_ClearFIFO(TIMER_TypeDef *TIMERx, uint8_t FIFO_CLR)
     /* Check the parameters */
     assert_param(IS_TIMER_ALL_PERIPH(TIMERx));
 
-    uint32_t timerid = TIMER_GetTimerID(TIMERx);
-
     if (FIFO_CLR == TIMER_CLEAR_CCR_FIFO)
     {
         TIMER_MODE_CFG_TypeDef timer_0x04 = {.d32 = TIMERx->TIMER_MODE_CFG};
