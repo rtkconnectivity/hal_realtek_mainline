@@ -4,3 +4,5 @@
 if(CONFIG_SOC_SERIES_RTL87X2J)
     zephyr_include_directories(inc)
 endif()
+
+add_subdirectory_ifdef(CONFIG_REALTEK_BEE_DEBUG src)
