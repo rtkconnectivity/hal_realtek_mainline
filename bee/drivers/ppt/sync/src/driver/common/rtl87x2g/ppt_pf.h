@@ -1,0 +1,57 @@
+/**
+*****************************************************************************************
+*     Copyright(c) 2020, Realtek Semiconductor Corporation. All rights reserved.
+*****************************************************************************************
+  * @file     ppt_pf.h
+  * @brief    Head file for 2.4G module platform related driver.
+  * @details  data structs and external functions declaration.
+  * @author   bill
+  * @date     2023-10-27
+  * @version  v0.1
+  * *************************************************************************************
+  */
+
+/* Define to prevent recursive inclusion */
+#ifndef _PPT_PF_H_
+#define _PPT_PF_H_
+
+/* Add Includes here */
+#include "debug_port.h"
+
+#ifdef  __cplusplus
+extern "C" {
+#endif      /* __cplusplus */
+
+/** @addtogroup PPT_PF
+  * @{
+  */
+
+/** @defgroup PPT_PF_Exported_Macros Exported Macros
+  * @brief
+  * @{
+  */
+
+/** @} End of PPT_PF_Exported_Macros */
+
+/** @defgroup PPT_PF_Exported_Types Exported Types
+  * @brief
+  * @{
+  */
+
+/** @} End of PPT_PF_Exported_Types */
+
+/** @defgroup PPT_PF_Exported_Functions Exported Functions
+  * @brief
+  * @{
+  */
+
+
+/** @} End of PPT_PF_Exported_Functions */
+
+/** @} End of PPT_PF */
+
+#ifdef  __cplusplus
+}
+#endif      /*  __cplusplus */
+
+#endif
