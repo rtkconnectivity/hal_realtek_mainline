@@ -7,6 +7,25 @@ config REALTEK_PPT
 
 config REALTEK_USING_PPT_SYNC_MASTER
 	bool "RealTek ppt master library"
-	default y if REALTEK_PPT
+	default y if REALTEK_PPT && !REALTEK_USING_PPT_SYNC_SLAVE
+	select USE_HAL_REALTEK_ENHTIM
 	help
 		This option enables the ppt master library for REALTEK MCU.
+
+config REALTEK_USING_PPT_SYNC_SLAVE
+	bool "RealTek ppt slave library"
+	default n
+	select USE_HAL_REALTEK_ENHTIM
+	help
+		This option enables the ppt slave library for REALTEK MCU.
+		Requires libppt_sync_slave.a placed in
+		modules/hal/realtek/bee/drivers/ppt/sync/lib/rtl87x2g/.
+
+config PPT_DRIVER_LOG_LEVEL
+	int "PPT 2.4G driver log level"
+	range 0 4
+	default 0
+	depends on REALTEK_PPT
+	help
+	  Compile-time log level for PPT 2.4G driver modules.
+	  0=none 1=err 2=wrn 3=inf 4=dbg. Set in prj.conf.
