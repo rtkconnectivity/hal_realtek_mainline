@@ -36,8 +36,17 @@ extern "C" {
  * @brief
  * @{
  */
+#ifdef CONFIG_REALTEK_USING_PPT_SYNC_MASTER
 #define SYNC_ROLE_MASTER_SUPPORT 1
+#else
+#define SYNC_ROLE_MASTER_SUPPORT 0
+#endif
+
+#ifdef CONFIG_REALTEK_USING_PPT_SYNC_SLAVE
+#define SYNC_ROLE_SLAVE_SUPPORT 1
+#else
 #define SYNC_ROLE_SLAVE_SUPPORT 0
+#endif
 #define SYNC_CHANNEL_FREQUENCY                                                                     \
     {2432, 2447, 2462, 2477, 2407, 2422, 2437, 2452, 2442, 2457, 2472, 2413}
 #define SYNC_CHANNEL_NUM_DV 12
